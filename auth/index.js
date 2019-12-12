@@ -9,7 +9,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://kwitter-api.herokuapp.com/auth/google/callback"
+      callbackURL: "https://kwitterdb.herokuapp.com"
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -18,18 +18,20 @@ passport.use(
           .toString("base64")
           .replace(/\W/g, "");
 
-        const user = (await User.findOrCreate({
-          where: { googleId: profile.id },
-          defaults: {
-            // todo: make username suggestions based on displayName
-            // todo: make option to enter a custom username also
-            username: profile.displayName.replace(" ", ""),
-            displayName: profile.displayName,
-            password: newPassword,
-            googleId: profile.id
-            // todo: download picture data if exists at photos[0].value
-          }
-        }))[0];
+        const user = (
+          await User.findOrCreate({
+            where: { googleId: profile.id },
+            defaults: {
+              // todo: make username suggestions based on displayName
+              // todo: make option to enter a custom username also
+              username: profile.displayName.replace(" ", ""),
+              displayName: profile.displayName,
+              password: newPassword,
+              googleId: profile.id
+              // todo: download picture data if exists at photos[0].value
+            }
+          })
+        )[0];
         done(null, user);
       } catch (err) {
         done(err);
